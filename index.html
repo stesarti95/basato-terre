@@ -6,162 +6,44 @@
 <title>BLG - Basic Land Game</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#] text-white min-h-screen p-4 font-mono">
+<body class="bg-zinc-950 text-white min-h-screen p-3 font-mono">
 <div class="max-w-4xl mx-auto">
-<div class="text-center mb-6">
-<h1 class="text-7xl font-black tracking-tighter">BLG</h1>
-<p class="text-xl font-bold tracking-widest text-indigo-300 mt-1">BASIC LAND GAME</p>
-<p class="text-sm opacity-60 mt-1">5 to win, different or equal</p>
+<div class="text-center mb-5">
+<h1 class="text-6xl font-black">BLG</h1>
+<div class="text-indigo-300 font-bold tracking-widest mt-1">BASIC LAND GAME</div>
+<div class="text-xs opacity-60 mt-1">5 to win, different or equals</div>
 </div>
-
-<!-- TURNO IN ALTO -->
-<div class="bg-[#] border border-white/10 p-4 rounded-2xl flex items-center justify-between mb-3">
-<span class="text-sm opacity-60">Turno</span>
-<span id="turnLabel" class="text-6xl font-black">G1</span>
-<button onclick="endTurn()" class="bg-yellow-300 text-black font-black px-8 py-3 rounded-xl text-lg">PASSA</button>
+<div class="bg-zinc-900 border border-white/10 rounded-2xl p-4 flex justify-between items-center mb-3">
+<div class="text-xs opacity-60">TURNO ATTUALE</div>
+<div id="turnLabel" class="text-4xl font-black text-yellow-300">G1</div>
+<button onclick="endTurn()" class="bg-yellow-300 text-black font-bold px-6 py-2 rounded-xl">PASSA</button>
 </div>
-
-<!-- MAZZO E CIMITERO SOTTO -->
-<div class="grid grid-cols-2 gap-3 mb-6">
-<div class="bg-[#] border border-white/10 p-4 rounded-2xl text-center">
-<p class="text-xs opacity-60 mb-1">MAZZO</p>
-<p class="text-2xl"><span id="deckCount">0</span> carte</p>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="bg-zinc-900 border border-white/10 rounded-2xl p-4 text-center">
+<div class="text-xs opacity-60">MAZZO</div>
+<div class="text-2xl font-bold mt-1"><span id="deckCount">40</span> carte</div>
 <button onclick="drawCard()" class="mt-3 w-full bg-white text-black font-bold py-2 rounded-xl">PESCA</button>
 </div>
-<div class="bg-[#] border border-white/10 p-4 rounded-2xl text-center">
-<p class="text-xs opacity-60 mb-1">CIMITERO</p>
-<p class="text-2xl"><span id="graveCount">0</span> carte</p>
-<p id="lastGrave" class="text- opacity-40 mt-2 truncate"></p>
+<div class="bg-zinc-900 border border-white/10 rounded-2xl p-4 text-center">
+<div class="text-xs opacity-60">CIMITERO</div>
+<div class="text-2xl font-bold mt-1"><span id="graveCount">0</span> carte</div>
+<div id="lastGrave" class="text-xs opacity-40 mt-2 h-4"></div>
 </div>
 </div>
-
-<div id="boards" class="space-y-4"></div>
-<div id="log" class="mt-6 bg-black p-3 rounded-xl h-24 overflow-auto text- opacity-70"></div>
+<div id="boards" class="grid md:grid-cols-2 gap-3"></div>
+<div id="log" class="mt-4 bg-black rounded-xl p-3 h-24 overflow-auto text-xs opacity-70"></div>
 </div>
-
 <script>
-const INFO={
-R:{n:'MONTAGNA',c:'bg-red-600',e:'ROSSO: spacca terra avv'},
-B:{n:'PALUDE',c:'bg-stone-700',e:'NERO: guarda e scarta'},
-G:{n:'FORESTA',c:'bg-green-700',e:'VERDE: recupera'},
-U:{n:'ISOLA',c:'bg-blue-600',e:'BLU: pesca / FOIL counter'},
-W:{n:'PIANURA',c:'bg-amber-100 text-black',e:'BIANCO: ricopia effetto'},
-C:{n:'JOLLY',c:'bg-zinc-600',e:'JOLLY'}
-};
-let deck=[];
-let P=[{hand:[],field:[],grave:[]},{hand:[],field:[],grave:[]}];
-let turn=0;
-
-function initDeck(){
-deck=[];
-['R','B','G','U','W'].forEach(col=>{for(let i=0;i<7;i++)deck.push(col)});
-for(let i=0;i<5;i++)deck.push('C');
-http://deck.sort(()=>Math.random()-0.5);
-P=[{hand:[],field:[],grave:[]},{hand:[],field:[],grave:[]}];
-for(let p=0;p<2;p++) for(let i=0;i<3;i++) http://P.hand.push(deck.pop());
-turn=0;
-log('Nuova partita BLG');
-render();
-}[p]
-
-function drawCard(){
-if(deck.length===0){log('Mazzo finito');return;}
-http://P.hand.push(deck.pop());
-log('G'+(turn+1)+' pesca - mazzo: '+deck.length);
-render();
-}[turn]
-
-function playCard(playerIdx, handIdx){
-if(playerIdx!==turn) return;
-let opp=1-turn;
-let card=P.hand;[playerIdx][handIdx]
-
-// Controllo FOIL counter avversario
-if(P.hand.includes('U') && http://P.hand.length>=2){
- if(confirm('G'+(opp+1)+' vuoi fare COUNTER FOIL? Scarti Isola + 1 carta per annullare?')){
- let u=P.hand.indexOf('U');
- http://P.grave.push(P.hand.splice(u,1));
- http://P.grave.push(P.hand.splice(0,1));
- http://P.grave.push(P.hand.splice(handIdx,1));
- log('G'+(opp+1)+' COUNTERA con Isola FOIL!');
- render(); return;
- }
-}[opp][0][playerIdx]
-
-http://P.hand.splice(handIdx,1);
-http://P.field.push(card);
-log('G'+(playerIdx+1)+' gioca '+INFO.n);[playerIdx][card]
-
-// effetti
-if(card==='R'){
- if(P.field.length>0){
- let idx=parseInt(prompt('Scegli terra avversaria da spaccare 0-'+(P.field.length-1)+': '+P.field.map(c=>INFO.n).join(',')));
- if(!isNaN(idx) && http://P.field){
- let d=P.field.splice(idx,1);
- http://P.grave.push(d);
- }
- }
-}
-if(card==='B'){
- if(P.hand.length>0){
- alert('Mano avversario: '+P.hand.map(c=>INFO.n).join(', '));
- http://P.grave.push(P.hand.splice(0,1));
- }
-}
-if(card==='G'){
- if(P.grave.length>0){
- http://P.hand.push(P.grave.pop());
- }
-}
-if(card==='U'){
- if(deck.length>0) http://P.hand.push(deck.pop());
-}
-if(card==='W'){
- if(P.field.length>1){
- let prev=P.field[P.field.length-2];
- if(prev==='U' && http://deck.length>0) http://P.hand.push(deck.pop());
- if(prev==='G' && http://P.grave.length>0) http://P.hand.push(P.grave.pop());
- }
-}[opp][c][idx][0][playerIdx]
-
-checkWin();
-render();
-}
-
-function checkWin(){
-let f=P.field.filter(c=>c!=='C');
-let uniq=[...new Set(f)];
-if(uniq.length>=5){alert('G'+(turn+1)+' VINCE! 5 colori diversi!'); initDeck(); return;}
-let cnt={}; http://f.forEach(c=>cnt=(cnt||0)+1);
-for(let k in cnt) if(cnt>=5){alert('G'+(turn+1)+' VINCE! 5x '+INFO.n); initDeck(); return;}
-}[turn][c][k]
-
-function endTurn(){turn=1-turn; log('--- Turno G'+(turn+1)+' ---'); render();}
-
-function log(t){let el=document.getElementById('log'); http://el.innerHTML='> '+t+'<br>'+el.innerHTML;}
-
-function render(){
-http://document.getElementById('deckCount').innerText=deck.length;
-http://document.getElementById('graveCount').innerText=P.grave.length+P.grave.length;
-http://document.getElementById('turnLabel').innerText='G'+(turn+1);
-let last=P.grave.concat(P.grave).slice(-1);
-http://document.getElementById('lastGrave').innerText=last?INFO.n:'';
-let html='';
-http://P.forEach((p,pi)=>{
- html+='<div class="bg-[#] border '+(pi===turn?'border-yellow-300/50':'border-white/10')+' p-4 rounded-2xl">';
- html+='<h3 class="font-bold '+(pi===turn?'text-yellow-300':'opacity-60')+'">GIOCATORE '+(pi+1)+' '+(pi===turn?' - TURNO':'')+'</h3>';
- html+='<p class="text- opacity-50 mt-3">CAMPO ('+p.field.length+'):</p>';
- html+='<div class="flex flex-wrap gap-2 mt-1 min-h-">';
- html+=p.field.map(c=>'<div class="'+INFO.c+' px-3 py-2 rounded-lg text- font-bold">'+INFO.n+'</div>').join('');
- html+='</div>';
- html+='<p class="text- opacity-50 mt-3">MANO:</p>';
- html+='<div class="flex flex-wrap gap-2 mt-1">';
- html+=p.hand.map((c,idx)=>'<div onclick="playCard('+pi+','+idx+')" class="'+INFO.c+' w- h- rounded-xl flex flex-col items-center justify-center text-center p-1 cursor-pointer hover:scale-105 transition border border-white/10"><span class="text- font-black">'+INFO.n+'</span><span class="text- leading- mt-1 opacity-80">'+INFO.e+'</span></div>').join('');
- html+='</div></div>';
-});
-http://document.getElementById('boards').innerHTML=html;
-}
+const INFO={R:{n:'MONTAGNA',cls:'bg-red-600',eff:'ROSSO: spacca terra'},B:{n:'PALUDE',cls:'bg-stone-700',eff:'NERO: scarta'},G:{n:'FORESTA',cls:'bg-green-700',eff:'VERDE: recupera'},U:{n:'ISOLA',cls:'bg-blue-600',eff:'BLU: pesca / FOIL'},W:{n:'PIANURA',cls:'bg-amber-100 text-black',eff:'BIANCO: ricopia'},C:{n:'JOLLY',cls:'bg-zinc-600',eff:'JOLLY'}};
+let deck=[];let P=[{hand:[],field:[],grave:[]},{hand:[],field:[],grave:[]}];let turn=0;
+function initDeck(){deck=[];['R','B','G','U','W'].forEach(c=>{for(let i=0;i<7;i++) deck.push(c)});for(let i=0;i<5;i++) deck.push('C');deck.sort(()=>Math.random()-0.5);P=[{hand:[],field:[],grave:[]},{hand:[],field:[],grave:[]}];for(let p=0;p<2;p++) for(let i=0;i<3;i++) P.hand.push(deck.pop());turn=0;log('Nuova partita BLG');render();}
+function drawCard(){if(deck.length===0){log('Mazzo finito');return;}P.hand.push(deck.pop());log('G'+(turn+1)+' pesca');render();}
+function playCard(pi,idx){if(pi!==turn) return;let card=P.hand;let opp=1-pi;if(P.hand.includes('U')&&P.hand.length>=2){if(confirm('G'+(opp+1)+' vuoi fare COUNTER FOIL? Scarti Isola + 1 carta?')){let ui=P.hand.indexOf('U');P.grave.push(P.hand.splice(ui,1));P.grave.push(P.hand.splice(0,1));P.grave.push(P.hand.splice(idx,1));log('G'+(opp+1)+' COUNTERA!');render();return;}}P.hand.splice(idx,1);P.field.push(card);log('G'+(pi+1)+' gioca '+INFO.n);if(card==='R'&&P.field.length>0){let t=prompt('Scegli terra avv da spaccare 0-'+(P.field.length-1));let ti=parseInt(t);if(!isNaN(ti)&&P.field){P.grave.push(P.field.splice(ti,1));}}if(card==='B'&&P.hand.length>0){alert('Mano avv: '+P.hand.map(c=>INFO.n).join(', '));P.grave.push(P.hand.splice(0,1));}if(card==='G'&&P.grave.length>0){P.hand.push(P.grave.pop());}if(card==='U'&&deck.length>0){P.hand.push(deck.pop());}if(card==='W'&&P.field.length>1){let prev=P.field[P.field.length-2];if(prev==='U'&&deck.length>0)P.hand.push(deck.pop());if(prev==='G'&&P.grave.length>0)P.hand.push(P.grave.pop());}checkWin();render();}
+function checkWin(){let f=P.field.filter(c=>c!=='C');let uniq=[...new Set(f)];if(uniq.length>=5){alert('G'+(turn+1)+' VINCE! 5 colori diversi!');initDeck();return;}let cnt={};f.forEach(c=>{cnt=(cnt||0)+1});for(let k in cnt) if(cnt>=5){alert('G'+(turn+1)+' VINCE! 5x '+INFO.n);initDeck();return;}}
+function endTurn(){turn=1-turn;log('--- Turno G'+(turn+1)+' ---');render();}
+function log(t){let el=document.getElementById('log');el.innerHTML='> '+t+'<br>'+el.innerHTML;}
+function render(){document.getElementById('deckCount').innerText=deck.length;document.getElementById('graveCount').innerText=P.grave.length+P.grave.length;document.getElementById('turnLabel').innerText='G'+(turn+1);let last=P.grave.concat(P.grave).slice(-1);document.getElementById('lastGrave').innerText=last?INFO.n:'';let html='';P.forEach((p,pi)=>{html+='<div class="bg-zinc-900 border '+(pi===turn?'border-yellow-300':'border-white/10')+' p-3 rounded-2xl">';html+='<div class="font-bold '+(pi===turn?'text-yellow-300':'opacity-60')+'">GIOCATORE '+(pi+1)+(pi===turn?' - TURNO':'')+'</div>';html+='<div class="text-xs opacity-50 mt-3">CAMPO ('+p.field.length+'):</div><div class="flex flex-wrap gap-1 mt-1">';html+=p.field.map(c=>'<div class="'+INFO.cls+' px-2 py-1 rounded text-xs font-bold">'+INFO.n+'</div>').join('');html+='</div><div class="text-xs opacity-50 mt-3">MANO:</div><div class="flex flex-wrap gap-2 mt-1">';html+=p.hand.map((c,i)=>'<div onclick="playCard('+pi+','+i+')" class="'+INFO.cls+' w-20 h-24 rounded-xl flex flex-col items-center justify-center p-1 cursor-pointer hover:scale-105 border border-white/10"><span class="font-black text-xs">'+INFO.n+'</span><span class="text-xs mt-1 opacity-80 text-center">'+INFO.eff+'</span></div>').join('');html+='</div></div>';});document.getElementById('boards').innerHTML=html;}
 initDeck();
 </script>
 </body>
-</html>[0][1][last][c]
+</html>[p][turn][pi][idx][opp][0][card][ti][c][k][1][last]
