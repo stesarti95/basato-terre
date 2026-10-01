@@ -1,1 +1,44 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Test</title></head><body style="background:black;color:white;font-family:monospace;text-align:center;padding-top:100px"><h1>SE VEDI QUESTO, FUNZIONA!</h1><p>Ora mettiamo il gioco vero</p><button onclick="alert('Gioco attivo!')" style="padding:20px;background:yellow">CLICCA QUI</button></body></html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Basato Terre - 5 Colori</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen p-3 font-mono">
+<div class="max-w-5xl mx-auto">
+<h1 class="text-3xl font-black text-center">BASATO TERRE</h1>
+<p class="text-center text-xs opacity-60 mb-3">5 colori diversi o 5 uguali per vincere</p>
+<div class="grid grid-cols-3 gap-2 text-xs mb-3">
+<div class="bg-zinc-800 p-2 rounded text-center">MAZZO: <b id="deckCount">0</b><br><button onclick="draw()" class="bg-white text-black px-2 py-1 rounded mt-1 w-full">PESCA</button></div>
+<div class="bg-zinc-800 p-2 rounded text-center">TURNO<br><b id="turn" class="text-yellow-400 text-lg">G1</b><br><button onclick="endTurn()" class="bg-yellow-400 text-black px-3 py-1 rounded mt-1">PASSA</button></div>
+<div class="bg-zinc-800 p-2 rounded text-center">CIMITERO<br><b id="graveCount">0</b></div>
+</div>
+<div id="boards" class="grid md:grid-cols-2 gap-3"></div>
+<div id="log" class="mt-3 bg-black p-2 rounded h-28 overflow-auto text-xs"></div>
+</div>
+<script>
+const C={R:{n:'MONTAGNA',c:'bg-red-600',e:'ROSSO: Spacca 1 terra avversario'},B:{n:'PALUDE',c:'bg-stone-700',e:'NERO: Avv scarta'},G:{n:'FORESTA',c:'bg-green-700',e:'VERDE: Recupera'},U:{n:'ISOLA',c:'bg-blue-600',e:'BLU: Pesca 1 / Counter FOIL'},W:{n:'PIANURA',c:'bg-amber-100 text-black',e:'BIANCO: Ricopia'},C:{n:'JOLLY',c:'bg-zinc-500',e:'JOLLY'}};
+let deck=[],pl=[{h:[],f:[],g:[]},{h:[],f:[],g:[]}],turn=0;
+function init(){deck=[];['R','B','G','U','W'].forEach(k=>{for(let i=0;i<7;i++)deck.push(k)});for(let i=0;i<5;i++)deck.push('C');deck.sort(()=>Math.random()-.5);pl=[{h:[],f:[],g:[]},{h:[],f:[],g:[]}];for(let p=0;p<2;p++)for(let i=0;i<3;i++)pl.h.push(deck.pop());log('Nuova partita! G1 inizia');upd()}
+function draw(){if(deck.length==0)return log('Mazzo vuoto');pl.h.push(deck.pop());log('G'+(turn+1)+' pesca');upd()}
+function play(pi,idx){if(pi!=turn)return;let card=pl.h;let opp=1-pi;
+if(pl.h.includes('U')&&pl.h.length>=2){if(confirm('G'+(opp+1)+' vuoi fare COUNTER FOIL? Scarti Isola + 1 carta per annullare?')){let ui=pl.h.indexOf('U');pl.g.push(pl.h.splice(ui,1));pl.g.push(pl.h.splice(0,1));pl.g.push(pl.h.splice(idx,1));log('G'+(opp+1)+' COUNTERA con FOIL!');upd();return;}}
+http://pl.h.splice(idx,1);pl.f.push(card);log('G'+(pi+1)+' gioca '+C.n+' - '+C.e);
+if(card=='R'){if(pl.f.length>0){let t=prompt('Scegli terra avversaria da spaccare 0-'+(pl.f.length-1)+': '+pl.f.map(x=>C.n).join(','));let ti=parseInt(t);if(!isNaN(ti)&&pl.f){let d=pl.f.splice(ti,1);pl.g.push(d);log('Distrutta '+C.n);}}}
+if(card=='B'){if(pl.h.length>0){alert('Mano avversario: '+pl.h.map(x=>C.n).join(', '));let d=pl.h.splice(0,1);pl.g.push(d);log('G'+(opp+1)+' scarta');}}
+if(card=='G'){if(pl.g.length>0){let r=pl.g.pop();pl.h.push(r);log('Recuperata '+C.n);}}
+if(card=='U'){if(deck.length>0){pl.h.push(deck.pop());log('Pesca extra da Isola');}}
+if(card=='W'){if(pl.f.length>1){let copy=pl.f[pl.f.length-2];if(copy){log('Bianco ricopia '+C.n);if(copy=='U'&&deck.length>0)pl.h.push(deck.pop());if(copy=='G'&&pl.g.length>0)pl.h.push(pl.g.pop());}}}
+checkWin();upd()
+}
+function checkWin(){let f=pl.f;let uniq=[...new Set(f.filter(x=>x!='C'))];if(uniq.length>=5){alert('G'+(turn+1)+' VINCE con 5 COLORI DIVERSI!');init();return;}let cnt={};f.forEach(x=>{if(x!='C')cnt=(cnt||0)+1});for(let k in cnt)if(cnt>=5){alert('G'+(turn+1)+' VINCE con 5x '+C.n);init();return;}}
+function endTurn(){turn=1-turn;log('--- Turno G'+(turn+1)+' ---');upd()}
+function log(t){let l=document.getElementById('log');l.innerHTML='> '+t+'<br>'+l.innerHTML}
+function upd(){document.getElementById('deckCount').innerText=deck.length;document.getElementById('graveCount').innerText=pl.g.length+pl.g.length;document.getElementById('turn').innerText='G'+(turn+1);let html='';pl.forEach((p,i)=>{html+='<div class="bg-zinc-900 p-3 rounded '+(i==turn?'ring-2 ring-yellow-400':'opacity-80')+'"><h2 class="font-bold">GIOCATORE '+(i+1)+' '+(i==turn?'(TURNO)':'')+'</h2><div class="text-xs mt-2">CAMPO:</div><div class="flex flex-wrap gap-1 min-h-">'+p.f.map(c=>'<div class="'+C.c+' w-14 h-20 rounded flex items-center justify-center text-xs font-bold">'+C.n+'</div>').join('')+'</div><div class="text-xs mt-2">MANO (clicca per giocare):</div><div class="flex flex-wrap gap-1">'+p.h.map((c,idx)=>'<div onclick="play('+i+','+idx+')" class="'+C.c+' w-14 h-20 rounded flex flex-col items-center justify-center text- font-bold cursor-pointer hover:scale-105 border border-white/20"><span>'+C.n+'</span><span class="text- text-center px-1">'+C.e+'</span></div>').join('')+'</div></div>'});document.getElementById('boards').innerHTML=html}
+init();
+</script>
+</body>
+</html>[p][turn][pi][idx][opp][0][card][x][ti][d][r][copy][k][1][c]
+Quando funziona ti aggiungo le immagini vere delle terre e il multiplayer online.
