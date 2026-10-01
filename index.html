@@ -29,6 +29,26 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;bac
 .mcard.xxs{width:2rem;height:2.8rem;padding:1px}.mcard.xxs .art{font-size:.9rem;margin:0}
 .cback.opp{width:1.5rem;height:2.1rem;margin-left:-.5rem;border-radius:4px}.cback.opp:first-child{margin-left:0}
 @media(min-width:640px){.mcard.xs{width:3.6rem;height:5rem}.mcard.xs .art{font-size:1.6rem}.mcard.xxs{width:2.8rem;height:4rem}.mcard.xxs .art{font-size:1.3rem}.mcard.xs .cx,.mcard.xxs .cx{display:none}.cback.opp{width:2.2rem;height:3.1rem}}
+.mcard{container-type:inline-size}
+.mcard .ct{font-size:12cqw!important;white-space:nowrap;overflow:hidden;letter-spacing:0}
+.mcard .cty{font-size:9cqw!important;white-space:nowrap;overflow:hidden}
+.mcard .cx{font-size:9cqw!important;line-height:1.15;overflow:hidden;max-height:3.5em;overflow-wrap:anywhere}
+.mcard .art{font-size:36cqw!important}
+.mcard.xs .ct,.mcard.xxs .ct{display:none}
+.mcard.xs .art,.mcard.xxs .art{font-size:50cqw!important}
+.mcard.sm{width:3.6rem;height:5rem}.mcard.xs{width:2.6rem;height:3.6rem}
+@media(min-width:640px){.mcard.sm{width:5rem;height:7rem}.mcard.xs{width:3.6rem;height:5rem}}
+.pname{font-weight:900;font-size:1rem;letter-spacing:.2em;opacity:.45}
+.pname.on{opacity:1;font-size:1.35rem;color:#ffe08a;text-shadow:0 0 12px #f0c75a}
+.pc .pname.on{color:#ff9d8f;text-shadow:0 0 12px #e0584a}
+.turnbadge{background:linear-gradient(#f6dc8a,#c9962f);color:#2a1a05;font-weight:900;font-size:.7rem;padding:.2rem .7rem;border-radius:999px;letter-spacing:.08em;animation:pulse 1.4s ease-in-out infinite}
+.pc .turnbadge{background:linear-gradient(#f0907f,#a8352a);color:#fff}
+@keyframes pulse{50%{box-shadow:0 0 14px #f0c75a;transform:scale(1.07)}}
+.panel:not(.active){filter:saturate(.6) brightness(.8)}
+.panel.pc.active{border-color:#e0584a;box-shadow:0 0 16px #e0584a77}
+.sideon{background:radial-gradient(ellipse at center,#f0c75a24,transparent 70%);border-radius:12px}
+#field0:empty::after,#field1:empty::after{content:'· · ·';opacity:.2;letter-spacing:.5em}
+.panel,.mat{overflow-wrap:anywhere}
 </style></head>
 <body id="body"><div class="overlay p-2  text-white"><div class="w-full max-w-3xl mx-auto h-full flex flex-col gap-2 text-center">
 <div class="shrink-0 relative text-center"><div><h1 class="title text-4xl font-black leading-none">BLG</h1><div class="text-indigo-300 text-xs font-bold tracking-widest">BASIC LAND GAME</div><div class="text-[10px] opacity-60" id="sub"></div></div>
@@ -36,7 +56,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;bac
 <div id="zone1" class="shrink-0"></div>
 <div class="mat flex-1 min-h-0 flex flex-col justify-between p-2 overflow-hidden">
 <div id="field1" class="flex flex-wrap justify-center gap-1 content-center items-center flex-1 min-h-0 overflow-hidden"></div>
-<div class="my-1 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 bg-black/50 rounded-xl px-3 py-1"><div><div class="text-[10px] opacity-60" id="lblTurn"></div><div id="turnLabel" class="text-2xl font-black text-yellow-300 leading-none">G1</div></div><div class="text-[10px] text-center"><div id="dropLabel"></div><div class="opacity-60"><span id="lblDeck"></span>: <span id="deckCount">0</span></div></div><button id="btnPass" type="button" class="gold font-bold px-5 py-2 rounded-xl"></button></div>
+<div class="shrink-0 flex items-center gap-2 text-yellow-600/70 text-xs my-0.5"><div class="flex-1 h-px bg-yellow-700/50"></div>⚔<div class="flex-1 h-px bg-yellow-700/50"></div></div>
 <div id="field0" class="flex flex-wrap justify-center gap-1 content-center items-center flex-1 min-h-0 overflow-hidden"></div></div>
 <div id="zone0" class="shrink-0"></div>
 <div id="log" class="shrink-0 bg-black/80 rounded-xl p-2 h-14 sm:h-16 overflow-auto text-xs opacity-80 text-center"></div></div></div>
@@ -54,9 +74,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;bac
 
 <script>
 const $=id=>document.getElementById(id);
-const S={it:{sub:'5 diverse o 5 uguali per vincere',type:'Terra Base',diff:'Difficoltà',musicL:'Musica',sfxL:'Effetti sonori',pc:'PC',you:'TU',turn:'TURNO ATTUALE',pass:'PASSA',deck:'Mazzo',size:'Carte nel mazzo',hand:'Mano iniziale',dropN:'Terra giocata: NO',dropY:'Terra giocata: SÌ',field:'CAMPO',handL:'MANO',grave:'CIMITERO',player:'GIOCATORE',newgame:'Nuova partita',draws:'pesca',plays:'gioca',already:'Puoi giocare una sola terra per turno',counter:'vuoi contrastare con Isola? (scarti Isola + 1 carta)',yes:'Sì',no:'No',disc2:'Scegli la carta da scartare insieme all\'Isola',countered:'contrasta l\'effetto con Isola!',pickLand:'Scegli la terra avversaria da distruggere',noTarget:'nessun bersaglio',destroyed:'distrutta',swamp:'Palude: scegli quale carta fa scartare (mano avversaria)',discarded:'scarta',noCards:'nessuna carta',forest:'Foresta: scegli la terra da riprendere',back:'riprende',scry:'Scry 1 - carta in cima:',top:'Tieni in cima',bottom:'Metti in fondo',deckEmpty:'Mazzo finito',winD:'VINCE! 5 terre diverse (Domain)!',winS:'VINCE! 5 terre uguali:',again:'Nuova partita',hidden:'carte coperte',
+const S={it:{sub:'5 diverse o 5 uguali per vincere',type:'Terra Base',yourTurn:'IL TUO TURNO',pcTurn:'TURNO DEL PC',diff:'Difficoltà',musicL:'Musica',sfxL:'Effetti sonori',pc:'PC',you:'TU',turn:'TURNO ATTUALE',pass:'PASSA',deck:'Mazzo',size:'Carte nel mazzo',hand:'Mano iniziale',dropN:'Terra giocata: NO',dropY:'Terra giocata: SÌ',field:'CAMPO',handL:'MANO',grave:'CIMITERO',player:'GIOCATORE',newgame:'Nuova partita',draws:'pesca',plays:'gioca',already:'Puoi giocare una sola terra per turno',counter:'vuoi contrastare con Isola? (scarti Isola + 1 carta)',yes:'Sì',no:'No',disc2:'Scegli la carta da scartare insieme all\'Isola',countered:'contrasta l\'effetto con Isola!',pickLand:'Scegli la terra avversaria da distruggere',noTarget:'nessun bersaglio',destroyed:'distrutta',swamp:'Palude: scegli quale carta fa scartare (mano avversaria)',discarded:'scarta',noCards:'nessuna carta',forest:'Foresta: scegli la terra da riprendere',back:'riprende',scry:'Scry 1 - carta in cima:',top:'Tieni in cima',bottom:'Metti in fondo',deckEmpty:'Mazzo finito',winD:'VINCE! 5 terre diverse (Domain)!',winS:'VINCE! 5 terre uguali:',again:'Nuova partita',hidden:'carte coperte',
 n:{R:'MONTAGNA',B:'PALUDE',G:'FORESTA',U:'ISOLA',W:'PIANURA'},e:{R:'Distrugge una terra avversaria',B:'L\'avversario mostra 3 carte e ne scarta 1',G:'Riprendi una terra dal cimitero',U:'Scry 1 / Contrasta (scarta con 1 carta)',W:'Pesca una carta'}},
-en:{sub:'5 different or 5 equal to win',type:'Basic Land',diff:'Difficulty',musicL:'Music',sfxL:'Sound effects',pc:'PC',you:'YOU',turn:'CURRENT TURN',pass:'PASS',deck:'Deck',size:'Deck size',hand:'Starting hand',dropN:'Land played: NO',dropY:'Land played: YES',field:'FIELD',handL:'HAND',grave:'GRAVEYARD',player:'PLAYER',newgame:'New game',draws:'draws',plays:'plays',already:'Only one land per turn',counter:'counter with Island? (discard Island + 1 card)',yes:'Yes',no:'No',disc2:'Choose the card to discard with the Island',countered:'counters the effect with Island!',pickLand:'Choose the opponent land to destroy',noTarget:'no target',destroyed:'destroyed',swamp:'Swamp: choose which card to discard (opponent hand)',discarded:'discards',noCards:'no cards',forest:'Forest: choose a land to return',back:'returns',scry:'Scry 1 - top card:',top:'Keep on top',bottom:'Put on bottom',deckEmpty:'Deck empty',winD:'WINS! 5 different lands (Domain)!',winS:'WINS! 5 of a kind:',again:'New game',hidden:'hidden cards',
+en:{sub:'5 different or 5 equal to win',type:'Basic Land',yourTurn:'YOUR TURN',pcTurn:'PC TURN',diff:'Difficulty',musicL:'Music',sfxL:'Sound effects',pc:'PC',you:'YOU',turn:'CURRENT TURN',pass:'PASS',deck:'Deck',size:'Deck size',hand:'Starting hand',dropN:'Land played: NO',dropY:'Land played: YES',field:'FIELD',handL:'HAND',grave:'GRAVEYARD',player:'PLAYER',newgame:'New game',draws:'draws',plays:'plays',already:'Only one land per turn',counter:'counter with Island? (discard Island + 1 card)',yes:'Yes',no:'No',disc2:'Choose the card to discard with the Island',countered:'counters the effect with Island!',pickLand:'Choose the opponent land to destroy',noTarget:'no target',destroyed:'destroyed',swamp:'Swamp: choose which card to discard (opponent hand)',discarded:'discards',noCards:'no cards',forest:'Forest: choose a land to return',back:'returns',scry:'Scry 1 - top card:',top:'Keep on top',bottom:'Put on bottom',deckEmpty:'Deck empty',winD:'WINS! 5 different lands (Domain)!',winS:'WINS! 5 of a kind:',again:'New game',hidden:'hidden cards',
 n:{R:'MOUNTAIN',B:'SWAMP',G:'FOREST',U:'ISLAND',W:'PLAINS'},e:{R:'Destroy an opponent land',B:'Opp. reveals 3 cards, discards 1',G:'Return a land from graveyard',U:'Scry 1 / Counter (discard with 1 card)',W:'Draw a card'}}};
 const CLS={R:'bg-red-600',B:'bg-stone-700',G:'bg-green-700',U:'bg-blue-600',W:'bg-amber-100 text-black'};
 const BG={default:'radial-gradient(ellipse at 50% 0%,#3a2457 0%,#120a1c 55%,#050308 100%)',plains:'linear-gradient(#f8f1d0,#c9b97a)',island:'linear-gradient(#1e5fa8,#0a2a52)',swamp:'linear-gradient(#3a2f3f,#0c0810)',mountain:'linear-gradient(#c0392b,#4a0f0a)',forest:'linear-gradient(#2e7d32,#0b2a10)'};
@@ -160,13 +180,17 @@ function fieldHtml(pi){const f=P[pi].field,g=FX.ghost&&FX.ghost[0]===pi,n=f.leng
  const a=f.map((c,i)=>card(c,z,'',FX.add&&FX.add[0]===pi&&FX.add[1]===i?(pi?'enter2':'enter'):''));
  if(g)a.splice(FX.ghost[1],0,card(FX.ghost[2],z,'','dying'));return a.join('');}
 function zone(pi){const p=P[pi],me=pi===turn;
- let h='<div class="panel'+(me?' active':'')+'"><div class="flex flex-col items-center text-xs text-center"><span class="font-bold '+(me?'text-yellow-300':'opacity-60')+'">'+(pi?s('pc'):s('you'))+(me?' ◀':'')+' · '+s('handL')+' ('+p.hand.length+')</span><span class="opacity-60 text-[10px] sm:text-xs break-words max-w-full">'+s('grave')+' ('+p.grave.length+'): '+p.grave.map(nm).join(', ')+'</span></div><div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 mt-1 '+(pi?'':'min-h-[6.5rem] sm:min-h-[9.5rem] ')+'items-end">';
+ const badge=me?'<span class="turnbadge">'+(pi?s('pcTurn'):s('yourTurn'))+'</span>':'';
+ const pass=pi===0?'<button type="button" onclick="endTurn()" class="gold font-bold px-5 py-1.5 rounded-xl text-sm"'+(turn!==0||over?' disabled':'')+'>'+s('pass')+'</button>':'';
+ let h='<div class="panel'+(me?' active':'')+(pi?' pc':'')+'"><div class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1"><span class="pname'+(me?' on':'')+'">'+(pi?s('pc'):s('you'))+'</span>'+badge+pass+'</div>';
+ h+='<div class="text-[10px] sm:text-xs opacity-70 mt-0.5 break-words">'+s('handL')+' ('+p.hand.length+')'+(pi===0?' · '+s('deck')+': '+deck.length:'')+' · '+s('grave')+' ('+p.grave.length+'): '+p.grave.map(nm).join(', ')+'</div>';
+ h+='<div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 mt-1 '+(pi?'':'min-h-[6.5rem] sm:min-h-[9.5rem] ')+'items-end">';
  h+=pi===0?p.hand.map((c,i)=>card(c,false,'onclick="playCard('+i+')"')).join(''):p.hand.map(()=>'<div class="cback opp"></div>').join('');
  return h+'</div></div>';}
 function render(){
- $('sub').textContent=s('sub');$('lblTurn').textContent=s('turn');$('btnPass').textContent=s('pass');$('btnPass').disabled=turn!==0;$('btnPass').classList.toggle('opacity-40',turn!==0);$('lblDeck').textContent=s('deck');
+ $('sub').textContent=s('sub');
  $('lblSize').textContent=s('size');$('lblDiff').textContent=s('diff');audioBtns();$('lblHand').textContent=s('hand');
- $('deckCount').textContent=deck.length;$('turnLabel').textContent=gn(turn);$('dropLabel').textContent=dropped?s('dropY'):s('dropN');
+ $('field0').classList.toggle('sideon',turn===0);$('field1').classList.toggle('sideon',turn===1);
  $('zone1').innerHTML=zone(1);$('zone0').innerHTML=zone(0);
  $('field1').innerHTML=fieldHtml(1);$('field0').innerHTML=fieldHtml(0);FX.add=null;}
 
@@ -177,7 +201,7 @@ $('settingsBtn').addEventListener('click',()=>$('settingsModal').style.display='
 const closeS=()=>$('settingsModal').style.display='none';
 $('closeSettingsBtn').addEventListener('click',closeS);
 $('settingsModal').addEventListener('click',e=>{if(e.target.id==='settingsModal')closeS();});
-$('btnPass').addEventListener('click',()=>endTurn());
+
 $('langSelect').addEventListener('change',e=>{lang=e.target.value;store.set('blg_lang',lang);render();});
 $('sizeSelect').addEventListener('change',e=>{cfg.size=+e.target.value;store.set('blg_size',cfg.size);initDeck();});
 $('handSelect').addEventListener('change',e=>{cfg.hand=+e.target.value;store.set('blg_hand',cfg.hand);initDeck();});
