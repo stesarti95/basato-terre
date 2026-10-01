@@ -21,17 +21,25 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;bac
 .l-B .ct,.l-B .cty{color:#111}
 .cback{width:2.2rem;height:3.1rem;border:2px solid #b8923f;border-radius:6px;flex-shrink:0;background:repeating-linear-gradient(45deg,#3b2a14,#3b2a14 4px,#5a3f1c 4px,#5a3f1c 8px)}
 @media(min-width:640px){.mcard{width:6.6rem;height:9.2rem;padding:5px}.mcard.sm{width:4.4rem;height:6.2rem}.ct{font-size:.7rem}.art{font-size:2.4rem}.cty{font-size:.55rem}.cx{display:block}.mcard.sm .cx{display:none}.cback{width:3.2rem;height:4.5rem}}
+@keyframes enter{0%{transform:translateY(130px) scale(1.8) rotate(-8deg);opacity:0;filter:brightness(2.2)}55%{opacity:1}100%{transform:none;filter:none}}
+@keyframes enter2{0%{transform:translateY(-130px) scale(1.8) rotate(8deg);opacity:0;filter:brightness(2.2)}55%{opacity:1}100%{transform:none;filter:none}}
+@keyframes die{0%{filter:brightness(3) saturate(2);transform:scale(1.1)}30%{transform:scale(1.18) rotate(4deg);filter:brightness(1.6) sepia(1) hue-rotate(-30deg)}100%{transform:scale(.35) rotate(20deg) translateY(30px);opacity:0;filter:blur(3px) grayscale(1)}}
+.enter{animation:enter .55s cubic-bezier(.2,1.3,.4,1)}.enter2{animation:enter2 .55s cubic-bezier(.2,1.3,.4,1)}.dying{animation:die .65s ease-in forwards;pointer-events:none}
+.mcard.xs{width:2.5rem;height:3.5rem;padding:2px}.mcard.xs .art{font-size:1rem}.mcard.xs .ct{font-size:.38rem}.mcard.xs .cty,.mcard.xxs .cty,.mcard.xxs .ct{display:none}
+.mcard.xxs{width:2rem;height:2.8rem;padding:1px}.mcard.xxs .art{font-size:.9rem;margin:0}
+.cback.opp{width:1.5rem;height:2.1rem;margin-left:-.5rem;border-radius:4px}.cback.opp:first-child{margin-left:0}
+@media(min-width:640px){.mcard.xs{width:3.6rem;height:5rem}.mcard.xs .art{font-size:1.6rem}.mcard.xxs{width:2.8rem;height:4rem}.mcard.xxs .art{font-size:1.3rem}.mcard.xs .cx,.mcard.xxs .cx{display:none}.cback.opp{width:2.2rem;height:3.1rem}}
 </style></head>
 <body id="body"><div class="overlay p-2  text-white"><div class="w-full max-w-3xl mx-auto h-full flex flex-col gap-2 text-center">
 <div class="shrink-0 relative text-center"><div><h1 class="title text-4xl font-black leading-none">BLG</h1><div class="text-indigo-300 text-xs font-bold tracking-widest">BASIC LAND GAME</div><div class="text-[10px] opacity-60" id="sub"></div></div>
 <button id="settingsBtn" type="button" class="absolute right-0 top-0 bg-zinc-800 border border-white/20 px-3 py-2 rounded-xl text-sm">⚙️</button></div>
 <div id="zone1" class="shrink-0"></div>
-<div class="mat flex-1 min-h-0 flex flex-col justify-between p-2 overflow-auto">
-<div id="field1" class="flex flex-wrap justify-center gap-1 content-center min-h-[4.7rem] sm:min-h-[6.5rem]"></div>
+<div class="mat flex-1 min-h-0 flex flex-col justify-between p-2 overflow-hidden">
+<div id="field1" class="flex flex-wrap justify-center gap-1 content-center items-center flex-1 min-h-0 overflow-hidden"></div>
 <div class="my-1 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 bg-black/50 rounded-xl px-3 py-1"><div><div class="text-[10px] opacity-60" id="lblTurn"></div><div id="turnLabel" class="text-2xl font-black text-yellow-300 leading-none">G1</div></div><div class="text-[10px] text-center"><div id="dropLabel"></div><div class="opacity-60"><span id="lblDeck"></span>: <span id="deckCount">0</span></div></div><button id="btnPass" type="button" class="gold font-bold px-5 py-2 rounded-xl"></button></div>
-<div id="field0" class="flex flex-wrap justify-center gap-1 content-center min-h-[4.7rem] sm:min-h-[6.5rem]"></div></div>
+<div id="field0" class="flex flex-wrap justify-center gap-1 content-center items-center flex-1 min-h-0 overflow-hidden"></div></div>
 <div id="zone0" class="shrink-0"></div>
-<div id="log" class="shrink-0 bg-black/80 rounded-xl p-2 h-16 sm:h-20 overflow-auto text-xs opacity-80 text-center"></div></div></div>
+<div id="log" class="shrink-0 bg-black/80 rounded-xl p-2 h-14 sm:h-16 overflow-auto text-xs opacity-80 text-center"></div></div></div>
 
 <div id="settingsModal" style="display:none" class="fixed inset-0 bg-black/80 items-center justify-center z-40 p-4"><div class="bg-zinc-900 border border-yellow-700/60 rounded-2xl max-w-md w-full p-6 text-white max-h-[90vh] overflow-auto">
 <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black">SETTINGS</h2><button id="closeSettingsBtn" type="button" class="text-2xl opacity-60">✕</button></div>
@@ -80,7 +88,7 @@ function musicTick(){if(!musicOn||!ac())return;const ch=CH[mi++%4];ch.forEach(f=
 function setMusic(){if(!ac())return;mGain.gain.value=musicOn?.5:0;if(musicOn&&!mTimer){musicTick();mTimer=setInterval(musicTick,8000);}if(!musicOn&&mTimer){clearInterval(mTimer);mTimer=null;}}
 function audioBtns(){$('musicBtn').textContent='🎵 '+s('musicL')+': '+(musicOn?'ON':'OFF');$('sfxBtn').textContent='🔊 '+s('sfxL')+': '+(sfxOn?'ON':'OFF');}
 function aiCounter(card){const d=cfg.diff;if(d==='nabbo')return Math.random()<.2;if(d==='pro'){const f=P[0].field,cn={};f.forEach(c=>cn[c]=(cn[c]||0)+1);const th=Math.max(0,...Object.values(cn))>=3||Object.keys(cn).length>=3;return th||card==='R'||card==='B'||Math.random()<.7;}return card==='R'||card==='B'||Math.random()<.5;}
-function card(c,small,attr){const SYM={R:'🔥',B:'💀',G:'🌲',U:'💧',W:'☀️'};return '<div '+(attr||'')+' class="mcard '+(small?'sm ':'')+'l-'+c+'"><div class="ct">'+nm(c)+'</div><div class="art">'+SYM[c]+'</div><div class="cty">'+s('type')+'</div><div class="cx">'+S[lang].e[c]+'</div></div>';}
+function card(c,sz,attr,an){const SYM={R:'🔥',B:'💀',G:'🌲',U:'💧',W:'☀️'};return '<div '+(attr||'')+' class="mcard '+(sz?(sz===true?'sm':sz)+' ':'')+(an?an+' ':'')+'l-'+c+'"><div class="ct">'+nm(c)+'</div><div class="art">'+SYM[c]+'</div><div class="cty">'+s('type')+'</div><div class="cx">'+S[lang].e[c]+'</div></div>';}
 const gn=i=>i?s('pc'):s('you');
 function aiLater(fn,ms,force){const g=gid;setTimeout(()=>{if(g===gid&&(force||!over))fn();},ms);}
 function pickDup(pl,o){const f=P[pl].field,h=P[pl].hand;const x=o.find(k=>f.includes(h[k.val]));return (x||o[Math.floor(Math.random()*o.length)]).val;}
@@ -103,7 +111,7 @@ function playCard(idx,isAI){
  if(!isAI&&turn!==0)return;
  if(dropped){log(s('already'));return;}
  const me=P[turn],oi=1-turn,opp=P[oi],card=me.hand.splice(idx,1)[0];
- me.field.push(card);dropped=true;sfx('play');log(gn(turn)+' '+s('plays')+' '+nm(card));
+ me.field.push(card);dropped=true;sfx('play');FX.add=[turn,me.field.length-1];render();log(gn(turn)+' '+s('plays')+' '+nm(card));
  const done=()=>{checkWin();render();if(turn===1&&!over)aiLater(()=>endTurn(true),900);};
  // Isola dell'avversario: contrasta l'effetto (la terra resta in gioco)
  if(opp.hand.includes('U')&&opp.hand.length>=2){
@@ -120,7 +128,7 @@ function etb(card,me,opp,done){
  if(card==='U'){if(!deck.length)return done();sfx('chime');const top=deck[deck.length-1];
   return choose(s('scry')+' '+nm(top),[{label:s('top'),val:0},{label:s('bottom'),val:1}],v=>{if(v)deck.unshift(deck.pop());done();},turn,()=>P[turn].field.includes(top)?1:0);}
  if(card==='R'){if(!opp.field.length){log(s('noTarget'));return done();}
-  return choose(s('pickLand'),opp.field.map((c,i)=>({label:nm(c),val:i})),i=>{const c=opp.field.splice(i,1)[0];opp.grave.push(c);log(nm(c)+' '+s('destroyed'));sfx('destroy');done();},turn,o=>{const f=opp.field,n=k=>f.filter(x=>x===f[k.val]).length;let b=o[0];o.forEach(k=>{if(n(k)>n(b))b=k;});return b.val;});}
+  return choose(s('pickLand'),opp.field.map((c,i)=>({label:nm(c),val:i})),i=>{const c=opp.field.splice(i,1)[0];opp.grave.push(c);log(nm(c)+' '+s('destroyed'));sfx('destroy');FX.ghost=[P.indexOf(opp),i,c];setTimeout(()=>{FX.ghost=null;render();},700);done();},turn,o=>{const f=opp.field,n=k=>f.filter(x=>x===f[k.val]).length;let b=o[0];o.forEach(k=>{if(n(k)>n(b))b=k;});return b.val;});}
  if(card==='B'){if(!opp.hand.length){log(s('noCards'));return done();}
   const idxs=shuffle(opp.hand.map((c,i)=>i)).slice(0,3);
   return choose(s('swamp'),idxs.map(i=>({label:nm(opp.hand[i]),val:i})),i=>{const c=opp.hand.splice(i,1)[0];opp.grave.push(c);log(gn(P.indexOf(opp))+' '+s('discarded')+' '+nm(c));sfx('discard');done();},turn,o=>{const x=o.find(k=>!opp.field.includes(opp.hand[k.val]));return (x||o[0]).val;});}
@@ -147,17 +155,20 @@ function aiTurn(){
  h.forEach((c,i)=>{let sc=(d==='pro'?Math.random()*.3:Math.random())+f.filter(x=>x===c).length*.8;if(!f.includes(c))sc+=2;if(c==='R'&&P[0].field.length)sc+=1;if(c==='B'&&P[0].hand.length)sc+=.5;if(d==='pro'&&c==='R'&&new Set(P[0].field).size>=3)sc+=3;if(c==='G'&&P[1].grave.length)sc+=.5;if(c==='W'&&deck.length)sc+=.3;if(sc>best){best=sc;bi=i;}});
  playCard(bi,true);}
 
-function fcard(c){return card(c,true);}
+const FX={add:null,ghost:null};
+function fieldHtml(pi){const f=P[pi].field,g=FX.ghost&&FX.ghost[0]===pi,n=f.length+(g?1:0),z=n>10?'xxs':n>5?'xs':'sm';
+ const a=f.map((c,i)=>card(c,z,'',FX.add&&FX.add[0]===pi&&FX.add[1]===i?(pi?'enter2':'enter'):''));
+ if(g)a.splice(FX.ghost[1],0,card(FX.ghost[2],z,'','dying'));return a.join('');}
 function zone(pi){const p=P[pi],me=pi===turn;
- let h='<div class="panel'+(me?' active':'')+'"><div class="flex flex-col items-center text-xs text-center"><span class="font-bold '+(me?'text-yellow-300':'opacity-60')+'">'+(pi?s('pc'):s('you'))+(me?' ◀':'')+' · '+s('handL')+' ('+p.hand.length+')</span><span class="opacity-60 text-[10px] sm:text-xs break-words max-w-full">'+s('grave')+' ('+p.grave.length+'): '+p.grave.map(nm).join(', ')+'</span></div><div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 mt-1 min-h-[6.5rem] sm:min-h-[9.5rem] items-end">';
- h+=pi===0?p.hand.map((c,i)=>card(c,false,'onclick="playCard('+i+')"')).join(''):p.hand.map(()=>'<div class="cback"></div>').join('');
+ let h='<div class="panel'+(me?' active':'')+'"><div class="flex flex-col items-center text-xs text-center"><span class="font-bold '+(me?'text-yellow-300':'opacity-60')+'">'+(pi?s('pc'):s('you'))+(me?' ◀':'')+' · '+s('handL')+' ('+p.hand.length+')</span><span class="opacity-60 text-[10px] sm:text-xs break-words max-w-full">'+s('grave')+' ('+p.grave.length+'): '+p.grave.map(nm).join(', ')+'</span></div><div class="flex flex-wrap justify-center gap-1.5 sm:gap-2 mt-1 '+(pi?'':'min-h-[6.5rem] sm:min-h-[9.5rem] ')+'items-end">';
+ h+=pi===0?p.hand.map((c,i)=>card(c,false,'onclick="playCard('+i+')"')).join(''):p.hand.map(()=>'<div class="cback opp"></div>').join('');
  return h+'</div></div>';}
 function render(){
  $('sub').textContent=s('sub');$('lblTurn').textContent=s('turn');$('btnPass').textContent=s('pass');$('btnPass').disabled=turn!==0;$('btnPass').classList.toggle('opacity-40',turn!==0);$('lblDeck').textContent=s('deck');
  $('lblSize').textContent=s('size');$('lblDiff').textContent=s('diff');audioBtns();$('lblHand').textContent=s('hand');
  $('deckCount').textContent=deck.length;$('turnLabel').textContent=gn(turn);$('dropLabel').textContent=dropped?s('dropY'):s('dropN');
  $('zone1').innerHTML=zone(1);$('zone0').innerHTML=zone(0);
- $('field1').innerHTML=P[1].field.map(fcard).join('');$('field0').innerHTML=P[0].field.map(fcard).join('');}
+ $('field1').innerHTML=fieldHtml(1);$('field0').innerHTML=fieldHtml(0);FX.add=null;}
 
 function setBg(n){$('body').style.background=BG[n]||BG.default;$('body').style.backgroundSize='cover';$('body').style.backgroundAttachment='fixed';store.set('blg_bg',n);}
 $('bgGrid').innerHTML=Object.keys(BG).map(k=>'<button type="button" data-bg="'+k+'" class="bgBtn rounded-xl h-16 border-2 border-white/20 text-xs font-bold" style="background:'+BG[k]+';color:'+(k==='plains'?'#000':'#fff')+'">'+k.toUpperCase()+'</button>').join('');
