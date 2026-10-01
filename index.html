@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="it"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;&lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;</p>
+<p class="p1">&lt;title&gt;Basato Terre - 5 Colori&lt;/title&gt;</p>
+<p class="p1">&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1">.card{transition:.2s}.card:hover{transform:translateY(-6px) scale(1.05)}</p>
+<p class="p1">.mountain{background:linear-gradient(135deg,#ef4444,#991b1b)}.swamp{background:linear-gradient(135deg,#44403c,#1c1917)}</p>
+<p class="p1">.forest{background:linear-gradient(135deg,#22c55e,#14532d)}.island{background:linear-gradient(135deg,#38bdf8,#1e40af)}</p>
+<p class="p1">.plains{background:linear-gradient(135deg,#fef9c3,#a16207)}.colorless{background:linear-gradient(135deg,#a3a3a3,#52525b)}</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-[#0f0f0f] text-white min-h-screen p-2 font-mono"&gt;</p>
+<p class="p1">&lt;div class="max-w-5xl mx-auto"&gt;</p>
+<p class="p1">&lt;h1 class="text-2xl font-black text-center my-2"&gt;BASATO TERRE // 5 COLORI&lt;/h1&gt;</p>
+<p class="p1">&lt;div class="flex justify-between gap-2 text-xs"&gt;</p>
+<p class="p1">&lt;div id="deck" class="bg-zinc-800 p-3 rounded-xl flex-1 text-center cursor-pointer" onclick="draw()"&gt;MAZZO&lt;br&gt;&lt;span id="deckCount"&gt;40&lt;/span&gt; carte&lt;br&gt;CLICCA PER PESCARE&lt;/div&gt;</p>
+<p class="p1">&lt;div class="bg-zinc-800 p-3 rounded-xl flex-1 text-center"&gt;TURNO: &lt;span id="turn" class="font-bold text-yellow-400"&gt;G1&lt;/span&gt;&lt;br&gt;&lt;button onclick="endTurn()" class="mt-1 bg-yellow-400 text-black px-3 py-1 rounded"&gt;PASSA&lt;/button&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;div id="discard" class="bg-zinc-800 p-3 rounded-xl flex-1 text-center"&gt;CIMITERO&lt;br&gt;&lt;span id="discardCount"&gt;0&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p1">&lt;div id="boards" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;div id="log" class="mt-3 bg-black p-2 rounded h-24 overflow-auto text-[11px]"&gt;&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">const colors={R:{name:'Montagna',cls:'mountain',eff:'ROSSO: Spacca 1 terra avversario'},B:{name:'Palude',cls:'swamp',eff:'NERO: Avv. scarta 1'},G:{name:'Foresta',cls:'forest',eff:'VERDE: Recupera dal cimitero'},U:{name:'Isola',cls:'island',eff:'BLU: Pesca 1 / FOIL COUNTER'},W:{name:'Pianura',cls:'plains',eff:'BIANCO: Ricopia terra tua'},C:{name:'Waste',cls:'colorless',eff:'JOLLY'}}</p>
+<p class="p1">let deck=[], p=[{hand:[],field:[],grave:[]},{hand:[],field:[],grave:[]}], turn=0, counterPending=null;</p>
+<p class="p1">function initDeck(){deck=[];['R','B','G','U','W'].forEach(c=&gt;{for(let i=0;i&lt;7;i++)deck.push(c)});for(let i=0;i&lt;5;i++)deck.push('C');deck.sort(()=&gt;Math.random()-.5); p.forEach(pl=&gt;{pl.hand=[];pl.field=[];pl.grave=[]; for(let i=0;i&lt;3;i++)pl.hand.push(deck.pop())}); update()}</p>
+<p class="p1">function draw(){if(counterPending)return; if(deck.length==0)return log('Mazzo finito!'); p[turn].hand.push(deck.pop()); log(`G${turn+1} pesca`); checkCounterOpportunity(); update()}</p>
+<p class="p1">function play(idx){let card=p[turn].hand[idx]; if(counterPending)return; if(counterPending!==null)return;</p>
+<p class="p1"><span class="Apple-converted-space"> </span>// FOIL check avversario</p>
+<p class="p1"><span class="Apple-converted-space"> </span>let opp=1-turn;</p>
+<p class="p1"><span class="Apple-converted-space"> </span>if(p[opp].hand.some(c=&gt;c=='U') &amp;&amp; p[opp].hand.length&gt;=2){</p>
+<p class="p1"><span class="Apple-converted-space">   </span>if(confirm(`G${opp+1} vuoi fare FOIL COUNTER? Scarti Isola + 1 carta per annullare?`)){</p>
+<p class="p1"><span class="Apple-converted-space">     </span>let uIdx=p[opp].hand.indexOf('U'); p[opp].hand.splice(uIdx,1); p[opp].grave.push('U'); p[opp].hand.splice(0,1); p[opp].grave.push('C');</p>
+<p class="p1"><span class="Apple-converted-space">     </span>p[turn].grave.push(card); p[turn].hand.splice(idx,1); log(`G${opp+1} COUNTERA con FOIL!`); update(); return;</p>
+<p class="p1"><span class="Apple-converted-space">   </span>}</p>
+<p class="p1"><span class="Apple-converted-space"> </span>}</p>
+<p class="p1"><span class="Apple-converted-space"> </span>p[turn].hand.splice(idx,1); p[turn].field.push(card); apply(card); log(`G${turn+1} gioca ${colors[card].name} - ${colors[card].eff}`); checkWin(); update();</p>
+<p class="p1">}</p>
+<p class="p1">function apply(c){</p>
+<p class="p1"><span class="Apple-converted-space"> </span>if(c=='R'){let opp=1-turn; if(p[opp].field.length==0)return; let target=prompt(`Scegli indice terra avversaria da spaccare 0-${p[opp].field.length-1}: ${p[opp].field.join(',')}`); let i=parseInt(target); if(!isNaN(i)&amp;&amp;p[opp].field[i]){let destroyed=p[opp].field.splice(i,1)[0]; p[opp].grave.push(destroyed)}}</p>
+<p class="p1"><span class="Apple-converted-space"> </span>if(c=='B'){let opp=1-turn; if(p[opp].hand.length==0)return; alert(`Mano avv: ${p[opp].hand.map(x=&gt;colors[x].name).join(', ')}`); p[opp].hand.splice(0,1); p[opp].grave.push('C')}</p>
+<p class="p1"><span class="Apple-converted-space"> </span>if(c=='G'){if(p[turn].grave.length==0)return; let rec=p[turn].grave.pop(); p[turn].hand.push(rec)}</p>
+<p class="p1"><span class="Apple-converted-space"> </span>if(c=='U'){p[turn].hand.push(deck.pop()||'C')}</p>
+<p class="p1"><span class="Apple-converted-space"> </span>if(c=='W'){if(p[turn].field.length&lt;=1)return; let copy=p[turn].field[p[turn].field.length-2]; if(copy)apply(copy)}</p>
+<p class="p1">}</p>
+<p class="p1">function checkCounterOpportunity(){}</p>
+<p class="p1">function checkWin(){let f=p[turn].field; if(f.length&gt;=5){let uniq=[...new Set(f.filter(x=&gt;x!='C'))]; if(uniq.length&gt;=5){alert(`G${turn+1} VINCE con 5 COLORI DIVERSI!`); initDeck(); return} let counts={}; f.forEach(x=&gt;{if(x!='C')counts[x]=(counts[x]||0)+1}); for(let k in counts) if(counts[k]&gt;=5){alert(`G${turn+1} VINCE con 5 ${colors[k].name}!`); initDeck(); return}}}</p>
+<p class="p1">function endTurn(){turn=1-turn; document.getElementById('turn').textContent='G'+(turn+1); log(`--- Turno G${turn+1} ---`); update()}</p>
+<p class="p1">function log(t){let l=document.getElementById('log'); l.innerHTML=`&gt; ${t}&lt;br&gt;`+l.innerHTML}</p>
+<p class="p1">function update(){document.getElementById('deckCount').textContent=deck.length; document.getElementById('discardCount').textContent=p[0].grave.length+p[1].grave.length;</p>
+<p class="p1"><span class="Apple-converted-space"> </span>let html=''; p.forEach((pl,i)=&gt;{html+=`&lt;div class="bg-zinc-900 p-3 rounded-xl ${i==turn?'ring-2 ring-yellow-400':''}"&gt;&lt;h2 class="font-bold ${i==0?'text-green-400':'text-blue-400'}"&gt;GIOCATORE ${i+1} ${i==turn?'(TURNO)':''}&lt;/h2&gt;&lt;div class="text-[10px] mt-1"&gt;CAMPO [${pl.field.length}]:&lt;/div&gt;&lt;div class="flex flex-wrap gap-1 min-h-[56px]"&gt;`+pl.field.map(c=&gt;`&lt;div class="card ${colors[c].cls} w-12 h-16 rounded flex items-center justify-center text-[9px] font-bold"&gt;${colors[c].name[0]}&lt;/div&gt;`).join('')+`&lt;/div&gt;&lt;div class="text-[10px] mt-2"&gt;MANO:&lt;/div&gt;&lt;div class="flex flex-wrap gap-1"&gt;`+pl.hand.map((c,idx)=&gt;`&lt;div onclick="${i==turn?`play(${idx})`:''}" class="card ${colors[c].cls} w-12 h-16 rounded flex flex-col items-center justify-center text-[8px] font-bold cursor-pointer border ${i!=turn?'opacity-50':''}"&gt;&lt;span&gt;${colors[c].name}&lt;/span&gt;&lt;span class="text-[6px] mt-1"&gt;${colors[c].eff.slice(0,12)}&lt;/span&gt;&lt;/div&gt;`).join('')+`&lt;/div&gt;&lt;div class="text-[10px] mt-2"&gt;Cimitero: ${pl.grave.length}&lt;/div&gt;&lt;/div&gt;`}); document.getElementById('boards').innerHTML=html}</p>
+<p class="p1">initDeck();</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
